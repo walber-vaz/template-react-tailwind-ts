@@ -26,7 +26,7 @@ export function useFetch<T>(url: string): {
             setData(result)
         } catch (error: any) {
             if (error.name === 'AbortError') {
-                console.log('Request aborted')
+                console.error('Request aborted')
                 return
             }
             setError({
