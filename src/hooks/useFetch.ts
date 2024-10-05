@@ -4,17 +4,20 @@ export interface FetchError {
     message: string
 }
 
-interface RetryProps {
+const DEFAULT_MAX_RETRIES = 3
+
+interface UseFetchOptions {
     maxRetries?: number
 }
 
 export function useFetch<dataType, errorType = FetchError>(
     url: string,
+    { maxRetries = DEFAULT_MAX_RETRIES }: UseFetchOptions = {},
 ): {
     data: dataType | null
     loading: boolean
     error: errorType | null
-    retry: (props?: RetryProps) => void
+    retry: () => void
     attemptsLeft: number
 } {
     const [data, setData] = useState<dataType | null>(null)
@@ -22,7 +25,6 @@ export function useFetch<dataType, errorType = FetchError>(
     const [error, setError] = useState<errorType | null>(null)
     const controller = useRef<AbortController | null>(null)
     const [retryCount, setRetryCount] = useState(0)
-    const [maxRetries, setMaxRetries] = useState(0)
 
     const fetchData = useCallback(async () => {
         controller.current?.abort()
@@ -60,12 +62,9 @@ export function useFetch<dataType, errorType = FetchError>(
         }
     }, [url, retryCount, fetchData])
 
-    const retry = ({ maxRetries = 3 }: RetryProps = {}) => {
+    const retry = () => {
         if (retryCount < maxRetries) {
-            setMaxRetries(maxRetries)
-            setTimeout(() => {
-                setRetryCount((prev) => prev + 1)
-            }, 1000)
+            setRetryCount((prevRetryCount) => prevRetryCount + 1)
         } else {
             console.warn('Máximo de tentativas atingido.')
         }

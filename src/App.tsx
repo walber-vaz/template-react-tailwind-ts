@@ -12,8 +12,9 @@ interface Post {
 export const App = () => {
     const [page, setPage] = useState(1)
     const { data, loading, error, retry, attemptsLeft } = useFetch<Post[], FetchError>(
-        `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=5`,
-        // 'https://httpbin.org/status/500',
+        // `https://jsonplaceholder.typicode.com/posts?_page=${page}&_limit=5`,
+        'https://httpbin.org/status/500',
+        { maxRetries: 3 },
     )
     const dialogRef = useRef<HTMLDialogElement | null>(null)
 
